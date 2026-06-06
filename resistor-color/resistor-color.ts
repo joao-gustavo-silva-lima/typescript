@@ -1,5 +1,28 @@
-export const colorCode = () => {
-  throw new Error('Remove this line and implement the function')
+type Color = 'black' |
+  'brown' |
+  'red' |
+  'orange' |
+  'yellow' |
+  'green' |
+  'blue' |
+  'violet' |
+  'grey' |
+  'white'
+  
+export const COLORS = [
+  'black',
+  'brown',
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'violet',
+  'grey',
+  'white'
+]
+
+export const colorCode = (entryColor : Color) : number => {
+  return COLORS.findIndex(color => color == entryColor)
 }
 
-export const COLORS = undefined
