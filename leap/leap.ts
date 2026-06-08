@@ -1,3 +1,7 @@
+const isDivisible = 
+  (num : number, divisor : number) : boolean => num % divisor === 0;
+
 export function isLeap(year : number) : boolean {
-  return (year % 4 == 0 && year % 100 != 0) || (year % 4 == 0 && year % 100 == 0 && year % 400 == 0);
+  return isDivisible(year, 4) && 
+    (!isDivisible(year, 100) || isDivisible(year, 400));
 }
