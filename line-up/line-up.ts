@@ -1,17 +1,17 @@
-export function format(
-  name: string, 
-  number: number | string
-): string {
-  number = number.toString();
+const isSuppletiveOrdinal = (position : string, ending : string) : boolean => 
+  position.endsWith(ending) && !position.endsWith('1' + ending);
 
-  if(number.endsWith('1') && !number.endsWith("11"))
-    number += "st";
-  else if(number.endsWith('2') && !number.endsWith("12"))
-    number += "nd";
-  else if(number.endsWith('3') && !number.endsWith("13"))
-    number += "rd";
-  else
-    number += "th";
+function getOrdinalSuffix(position : string) : string {
+  if(isSuppletiveOrdinal(position, '1')) return "st";
+  if(isSuppletiveOrdinal(position, '2')) return "nd";
+  if(isSuppletiveOrdinal(position, '3')) return "rd";
+  return "th";
+}
 
-  return `${name}, you are the ${number} customer we serve today. Thank you!`;
+export function format(name: string, number: number): string {
+  const position : string = number.toString();
+  
+  const formattedPosition = position + getOrdinalSuffix(position);
+
+  return `${name}, you are the ${formattedPosition} customer we serve today. Thank you!`;
 }
