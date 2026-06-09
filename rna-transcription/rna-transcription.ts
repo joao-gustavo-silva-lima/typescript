@@ -1,9 +1,18 @@
-const COMMOM_NUCLEOTIDES : string[] = [ "A", "C", "G" ] as const;
+const COMMON_NUCLEOTIDES = [ "A", "C", "G" ] as const;
 
-const DNA_NUCLEOTIDES : string[] = COMMOM_NUCLEOTIDES.concat("T");
+const DNA_NUCLEOTIDES = [...COMMON_NUCLEOTIDES, "T"] as const;
 type DnaNucleotide = typeof DNA_NUCLEOTIDES[number];
 
-type RnaNucleotide = typeof COMMOM_NUCLEOTIDES[number] | "U" ;
+const RNA_NUCLEOTIDES = [...COMMON_NUCLEOTIDES, "U"] as const;
+type RnaNucleotide = typeof RNA_NUCLEOTIDES[number];
+
+function tryGettingDnaComplementNucleotide(nucleotide : string) : RnaNucleotide {
+  if(!(DNA_NUCLEOTIDES as readonly string[]).includes(nucleotide)) {
+    throw new Error("Invalid input DNA.");
+  }
+
+  return getComplementDnaNucleotide(nucleotide as DnaNucleotide);
+}
 
 function getComplementDnaNucleotide(nucleotide : DnaNucleotide) : RnaNucleotide {
   switch(nucleotide) {
@@ -16,15 +25,8 @@ function getComplementDnaNucleotide(nucleotide : DnaNucleotide) : RnaNucleotide 
 }
 
 export function toRna(dna : string) : string {
-  const dnaNucleotides : string[] = dna.split("");
-
-  let rna : RnaNucleotide[] = []; 
-
-  for( let i : number = 0 ; i < dnaNucleotides.length ; i++ ) {
-    if(!DNA_NUCLEOTIDES.includes(dnaNucleotides[i])) throw "Invalid input DNA.";
-
-    rna.push(getComplementDnaNucleotide(dnaNucleotides[i]));
-  }
-
-  return rna.join('');
+  return dna
+    .split("")
+    .map(nucleotide => tryGettingDnaComplementNucleotide(nucleotide))
+    .join("");
 }
