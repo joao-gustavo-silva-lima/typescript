@@ -1,27 +1,20 @@
 const EARTH_ORBITAL_PERIOD_IN_SECS = 31557600;
 
-const PLANETS_ORBITAL_PERIOD_IN_EARTH_YEARS = {
-  mars : 1.8808158,
-  earth : 1.000000,
-  venus : 0.61519726,
-  saturn : 29.447498,
-  uranus : 84.016846,
-  mercury : 0.2408467,
-  neptune : 164.79132, 
-  jupiter : 11.862615
+const earthYearsToSeconds = (years : number) : number => 
+  years * EARTH_ORBITAL_PERIOD_IN_SECS;
+
+const PLANETS_ORBITAL_PERIOD_IN_SECS = {
+  mars    : earthYearsToSeconds(1.88081580),
+  earth   : earthYearsToSeconds(1.00000000),
+  venus   : earthYearsToSeconds(0.61519726),
+  saturn  : earthYearsToSeconds(29.4474980),
+  uranus  : earthYearsToSeconds(84.0168460),
+  neptune : earthYearsToSeconds(164.791320), 
+  jupiter : earthYearsToSeconds(11.8626150),
+  mercury : earthYearsToSeconds(0.24084670)
 } as const;
 
-const PLANETS = Object.keys(
-  PLANETS_ORBITAL_PERIOD_IN_EARTH_YEARS
-) as (keyof typeof PLANETS_ORBITAL_PERIOD_IN_EARTH_YEARS)[];
+type Planet = keyof typeof PLANETS_ORBITAL_PERIOD_IN_SECS;
 
-type Planet = typeof PLANETS[number];
-
-
-export var age = (planet: Planet, seconds: number): number => +
-  (seconds / 
-  (
-    PLANETS_ORBITAL_PERIOD_IN_EARTH_YEARS[planet] * 
-    EARTH_ORBITAL_PERIOD_IN_SECS
-  ))
-  .toFixed(2);
+export const age = (planet: Planet, seconds: number): number => 
+  +(seconds / PLANETS_ORBITAL_PERIOD_IN_SECS[planet]).toFixed(2);
