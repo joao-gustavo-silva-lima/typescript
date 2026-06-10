@@ -1,42 +1,25 @@
 export class DnDCharacter {
-  public wisdom       : number;
-  public strength     : number;
-  public charisma     : number;
-  public dexterity    : number;
-  public constitution : number;
-  public intelligence : number;
+  public wisdom       = DnDCharacter.generateAbilityScore();
+  public strength     = DnDCharacter.generateAbilityScore();
+  public charisma     = DnDCharacter.generateAbilityScore();
+  public dexterity    = DnDCharacter.generateAbilityScore();
+  public constitution = DnDCharacter.generateAbilityScore();
+  public intelligence = DnDCharacter.generateAbilityScore();
   
-  public hitpoints    : number;
-
-  constructor() {
-    this.wisdom       = DnDCharacter.generateAbilityScore();
-    this.strength     = DnDCharacter.generateAbilityScore();
-    this.charisma     = DnDCharacter.generateAbilityScore();
-    this.dexterity    = DnDCharacter.generateAbilityScore();
-    this.constitution = DnDCharacter.generateAbilityScore();
-    this.intelligence = DnDCharacter.generateAbilityScore();
-    
-    this.hitpoints    = 10 + DnDCharacter.getModifierFor(this.constitution);
-  }
-
-  public static generateAbilityScore(): number {
-    let diceThrowResults : number[] = Array.from(
-      { length : 4 }, () => Dice.throw()
-    )
-    .sort();
-
-    diceThrowResults.shift();
-
-    return diceThrowResults.reduce(
-      (prevValue : number, currValue : number) => prevValue + currValue);
-  }
+  public hitpoints    = DnDCharacter.getModifierFor(this.constitution) + 10;
 
   public static readonly getModifierFor = (abilityValue: number): number =>
     Math.floor((abilityValue - 10) / 2);
+
+  public static generateAbilityScore = (): number => 
+    Dice.throwQuadruple()
+    .slice(1)
+    .reduce((prevValue, currValue) => prevValue + currValue);
 }
 
 class Dice {
-  public static throw = () : number => 
-    Math.floor(Math.random() * 6) + 1;    
+  public static throwQuadruple = () : number[] => 
+    Array.from({ length : 4 }, () => Math.floor(Math.random() * 6) + 1) 
+    .sort((a, b) => a - b);
 }
 
