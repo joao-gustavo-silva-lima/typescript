@@ -8,16 +8,8 @@ export class Matrix {
   }
 
   get columns() : number[][] {
-    const columns : number[][] = [];
-
-    for(let i = 0 ; i < this.rows[0].length ; i++ ) {
-      const column : number[] = [];
-
-      this.rows.forEach(r => column.push(r[i]));
-
-      columns.push(column);
-    }
-
-    return columns;
+    return Array.from(
+      { length : this.rows[0].length }, 
+      (v, k) => this.rows.map(r => r[k]));
   }
 }
