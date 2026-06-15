@@ -1,3 +1,4 @@
-export function isPangram() {
-  throw new Error('Remove this line and implement the function')
-}
+const ALPHABET = [..."abcdefghijklmnopqrstuvwxyz"];
+
+export const isPangram = (sentence : string) : boolean =>
+  ALPHABET.every(letter => sentence.toLowerCase().includes(letter));
