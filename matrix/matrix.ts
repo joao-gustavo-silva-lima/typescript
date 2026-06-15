@@ -1,13 +1,23 @@
 export class Matrix {
-  constructor() {
-    throw new Error('Remove this line and implement the function')
+  constructor(private matrix : string) {}
+
+  get rows() : number[][] {
+    return this.matrix
+      .split('\n')
+      .map(row => row.split(' ').map(unit => Number(unit)));
   }
 
-  get rows(): unknown {
-    throw new Error('Remove this line and implement the function')
-  }
+  get columns() : number[][] {
+    const columns : number[][] = [];
 
-  get columns(): unknown {
-    throw new Error('Remove this line and implement the function')
+    for(let i = 0 ; i < this.rows[0].length ; i++ ) {
+      const column : number[] = [];
+
+      this.rows.forEach(r => column.push(r[i]));
+
+      columns.push(column);
+    }
+
+    return columns;
   }
 }
