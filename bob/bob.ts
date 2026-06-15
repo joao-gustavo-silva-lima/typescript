@@ -1,27 +1,21 @@
-const ALPHABET = [..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+const isYelling = (str : string) : boolean => 
+  str === str.toUpperCase() && /[A-Z]/.test(str);
 
-const isYelling = (message : string) : boolean => 
-  message === message.toUpperCase() && ALPHABET.some(l => message.includes(l));
+const isSilent  = (str : string) : boolean => 
+  str.trim().length === 0;
 
-const isSilent  = (message : string) : boolean => 
-  message.trim().length === 0;
-
-const isQuestioning  = (message : string) : boolean => 
-  message.trim().endsWith('?');
+const isQuestioning  = (str : string) : boolean => 
+  str.trim().endsWith('?');
 
 export function hey(message: string): string {
+  const questioning = isQuestioning(message);
+  const yelling     = isYelling(message);
+  const silent      = isSilent(message);
 
-  if(isQuestioning(message) && isYelling(message)) 
-    return "Calm down, I know what I'm doing!";
+  if(questioning && yelling) return "Calm down, I know what I'm doing!";
+  if(questioning)            return "Sure.";
+  if(yelling)                return "Whoa, chill out!";
+  if(silent)                 return "Fine. Be that way!";
 
-  if(isQuestioning(message)) 
-    return "Sure.";
-
-  if(isYelling(message)) 
-    return "Whoa, chill out!";
-  
-  if(isSilent(message)) 
-    return "Fine. Be that way!";
-  
   return "Whatever.";
 }
