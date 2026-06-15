@@ -1,15 +1,14 @@
 export class Matrix {
-  constructor(private matrix : string) {}
+  public readonly rows : number[][];
+  public readonly columns : number[][];
 
-  get rows() : number[][] {
-    return this.matrix
+  constructor(matrix : string) {
+    this.rows = matrix
       .split('\n')
-      .map(row => row.split(' ').map(unit => Number(unit)));
-  }
+      .map(row => row.split(' ').map(Number));
 
-  get columns() : number[][] {
-    return Array.from(
+    this.columns = Array.from(
       { length : this.rows[0].length }, 
-      (v, k) => this.rows.map(r => r[k]));
+      (_, columnIndex) => this.rows.map(row => row[columnIndex]));
   }
 }
