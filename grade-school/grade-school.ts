@@ -1,12 +1,17 @@
 export class GradeSchool {
+  private readonly studentsRecord = new Map<string, number>();
+
   private grades : Record<number, string[]> = {};
 
   public readonly roster = () : Record<number, string[]> => 
     Object.keys(this.grades)
-    .sort()
     .map(Number)
+    .sort()
     .reduce(
-      (obj, key) => { obj[key] = [...this.grades[key]]; return obj; }, 
+      (obj, key) => {
+        obj[key] = [...this.grades[key]];
+        return obj;
+      }, 
       {} as Record<number, string[]>
     );
 
@@ -14,12 +19,20 @@ export class GradeSchool {
     [...(this.grades[grade] ?? [])]
 
   public add(studentName : string, hostGrade : number) : void {
-    Object.keys(this.grades)
-    .map(Number)
-    .forEach(
-      grade => this.grades[grade] = this.grades[grade].filter(existentStudentName => existentStudentName != studentName));
+    this.preventRecordDuplication(studentName);
 
     this.grades[hostGrade] = [...(this.grades[hostGrade] ?? []), studentName]
-      .sort()
+      .sort();
+
+    this.studentsRecord.set(studentName, hostGrade);
+  }
+
+  private preventRecordDuplication(studentName : string) : void {
+    const studentGrade = this.studentsRecord.get(studentName);
+
+    if(studentGrade === undefined) return;
+
+    this.grades[studentGrade] = this.grades[studentGrade].filter(
+      (_studentName, _) => _studentName != studentName);
   }
 }
