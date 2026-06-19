@@ -1,50 +1,65 @@
 const ALPHABET = [ ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ" ];
-const DIGITS   = [  0, 1, 2, 3, 4, 5, 6, 7, 8, 9,  ];
-
-function createObjectFromKeys(keys : string[] | number[], commomValue : number) : Record<string, number> {
-  const obj : Record<string, number> = {};
-
-  for(let key of keys) obj[key] = commomValue;
-
-  return obj;
-} 
-
-export function getRandomObjectKey(obj : Record<string, number>) : string {
-  const keys = Object.keys(obj)
-
-  const output = keys[Math.floor(Math.random() * keys.length)];
-  
-  if(--obj[output] <= 0) delete obj[output];
-
-  return output;
-}
+const TOTAL_NUMBER_OF_NAMES = 676000;
 
 export class NameFactory {
-  public static availableChars = this.getClearAvailableChars();
+  private static alreadyTakenPtr : number[] = [];
 
-  public static getClearAvailableChars() {
-    return {
-      alpha   : createObjectFromKeys(ALPHABET, 26E+3),
-      beta    : createObjectFromKeys(ALPHABET,  1000),
-      gamma   : createObjectFromKeys(DIGITS  ,   100),
-      delta   : createObjectFromKeys(DIGITS  ,    10),
-      epsilon : createObjectFromKeys(DIGITS  ,     1),
+  private static get numberOfAvailablePtr() {
+    return TOTAL_NUMBER_OF_NAMES - this.alreadyTakenPtr.length;
+  } 
+  
+  private static getRandomPtr() : number {
+    var randomInt = Math.floor(Math.random() * this.numberOfAvailablePtr);
+
+    for( let num of this.alreadyTakenPtr ) {
+      if(num > randomInt) break;
+
+      randomInt++;
     }
+    
+    return randomInt;
   }
 
-  public static create() : string {
-    return ""
-      + getRandomObjectKey(this.availableChars.alpha  )
-      + getRandomObjectKey(this.availableChars.beta   )
-      + getRandomObjectKey(this.availableChars.gamma  )
-      + getRandomObjectKey(this.availableChars.delta  )
-      + getRandomObjectKey(this.availableChars.epsilon);
+  private static recordNewPtr(Ptr : number) : void {
+    let head = 0;
+    let numberOfRecords = this.alreadyTakenPtr.length;
+
+    while (head < numberOfRecords) {
+      const mid = (head + numberOfRecords) >>> 1;
+      if (this.alreadyTakenPtr[mid] < Ptr) {
+        head = mid + 1;
+      } else {
+        numberOfRecords = mid;
+      }
+    }
+    
+    this.alreadyTakenPtr.splice(head, 0, Ptr);
+  }
+  
+  private static getNamePreffix(Ptr : number) : string {
+    const prefixIndex = Math.floor(Ptr / 1000);
+    const charAlpha   = ALPHABET[ Math.floor(prefixIndex / 26) ];
+    const charBetha   = ALPHABET[       prefixIndex % 26       ];
+    
+    return `${charAlpha}${charBetha}`;
   }
 
-  public static clear() : void { 
-    this.availableChars = this.getClearAvailableChars(); 
+  private static readonly getNamePosfix = (Ptr : number) : string =>
+    String(Ptr % 1000).padStart(3, '0');
+
+  public static createName() : string {
+    if (this.numberOfAvailablePtr <= 0) {
+      throw new Error("All available robots were created.");
+    }
+
+    var Ptr : number = this.getRandomPtr();
+
+    this.recordNewPtr(Ptr);
+
+    return this.getNamePreffix(Ptr) + this.getNamePosfix(Ptr);
   }
 
+  public static reset() : void { this.alreadyTakenPtr = []; }
 }
 
 export class Robot {
@@ -56,7 +71,7 @@ export class Robot {
     return this._name;
   }
 
-  public resetName() : void { this._name = NameFactory.create(); }
+  public resetName() : void { this._name = NameFactory.createName(); }
 
-  public static releaseNames = () : void => NameFactory.clear();
+  public static releaseNames = () : void => NameFactory.reset();
 }
