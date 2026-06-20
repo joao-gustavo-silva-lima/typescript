@@ -1,77 +1,65 @@
-const ALPHABET = [ ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ" ];
-const TOTAL_NUMBER_OF_NAMES = 676000;
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-export class NameFactory {
-  private static alreadyTakenPtr : number[] = [];
+class NameFactory {
+  private static remainingCapacity = 676000;
+  private static readonly swaps = new Map<number, number>();
 
-  private static get numberOfAvailablePtr() {
-    return TOTAL_NUMBER_OF_NAMES - this.alreadyTakenPtr.length;
-  } 
-  
-  private static getRandomPtr() : number {
-    var randomInt = Math.floor(Math.random() * this.numberOfAvailablePtr);
-
-    for( let num of this.alreadyTakenPtr ) {
-      if(num > randomInt) break;
-
-      randomInt++;
-    }
-    
-    return randomInt;
-  }
-
-  private static recordNewPtr(Ptr : number) : void {
-    let head = 0;
-    let numberOfRecords = this.alreadyTakenPtr.length;
-
-    while (head < numberOfRecords) {
-      const mid = (head + numberOfRecords) >>> 1;
-      if (this.alreadyTakenPtr[mid] < Ptr) {
-        head = mid + 1;
-      } else {
-        numberOfRecords = mid;
-      }
-    }
-    
-    this.alreadyTakenPtr.splice(head, 0, Ptr);
+  public static reset() {
+    this.remainingCapacity = 676000;
+    this.swaps.clear();
   }
   
-  private static getNamePreffix(Ptr : number) : string {
-    const prefixIndex = Math.floor(Ptr / 1000);
-    const charAlpha   = ALPHABET[ Math.floor(prefixIndex / 26) ];
-    const charBetha   = ALPHABET[       prefixIndex % 26       ];
-    
-    return `${charAlpha}${charBetha}`;
-  }
-
-  private static readonly getNamePosfix = (Ptr : number) : string =>
-    String(Ptr % 1000).padStart(3, '0');
-
-  public static createName() : string {
-    if (this.numberOfAvailablePtr <= 0) {
-      throw new Error("All available robots were created.");
+  public static getNewName() : string {
+    if(this.remainingCapacity <= 0) {
+      throw Error("Factory is Exhausted.");
     }
 
-    var Ptr : number = this.getRandomPtr();
+    const namePointer : number = this.getRandomPointer();
 
-    this.recordNewPtr(Ptr);
-
-    return this.getNamePreffix(Ptr) + this.getNamePosfix(Ptr);
+    return this.getNamePrefix(namePointer) + this.getNameSuffix(namePointer);
   }
 
-  public static reset() : void { this.alreadyTakenPtr = []; }
+  private static readonly getNamePrefix = (namePointer : number) : string => ""
+    + ALPHABET[    (namePointer / 26000) | 0    ]
+    + ALPHABET[ ((namePointer / 1000) | 0) % 26 ];
+
+  private static readonly getNameSuffix = (namePointer : number) : string => 
+    String(namePointer % 1000).padStart(3, '0');
+
+  private static getRandomPointer() : number {
+    const randomIndex = (Math.random() * this.remainingCapacity) | 0;
+    this.remainingCapacity--;
+
+    const drawnPointer = this.swaps.has(randomIndex)
+      ? this.swaps.get(randomIndex)
+      : randomIndex;
+
+    const boundaryPointer = this.swaps.has(this.remainingCapacity)
+      ? this.swaps.get(this.remainingCapacity)
+      : this.remainingCapacity;
+
+    if(randomIndex !== this.remainingCapacity) {
+      this.swaps.set(randomIndex, boundaryPointer!);
+    }
+      
+    this.swaps.delete(this.remainingCapacity);
+
+    return drawnPointer!;
+  }
 }
 
 export class Robot {
-  private _name : string = "";  
+  private _name : string = NameFactory.getNewName();
 
-  public get name(): string {
-    if(!this._name) this.resetName();
-
-    return this._name;
+  public get  name() : string {
+    return this._name;          
   }
 
-  public resetName() : void { this._name = NameFactory.createName(); }
+  public resetName() : void { 
+    this._name = NameFactory.getNewName(); 
+  }
 
-  public static releaseNames = () : void => NameFactory.reset();
+  public static releaseNames() : void { 
+    NameFactory.reset(); 
+  }
 }
