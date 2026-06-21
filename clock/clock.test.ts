@@ -1,4 +1,4 @@
-import { describe, xdescribe, it, expect } from '@jest/globals'
+import { describe, it, expect } from '@jest/globals'
 import { Clock } from './clock.ts'
 
 describe('Clock', () => {
@@ -79,7 +79,7 @@ describe('Clock', () => {
       expect(new Clock(-121, -5810).toString()).toEqual('22:10')
     })
 
-    xdescribe('Adding and subtracting minutes', () => {
+    describe('Adding and subtracting minutes', () => {
       it('add minutes', () => {
         expect(new Clock(10, 0).plus(3).toString()).toEqual('10:03')
       })
@@ -145,7 +145,7 @@ describe('Clock', () => {
       })
     })
 
-    xdescribe('Construct two separate clocks, set times, test if they are equal', () => {
+    describe('Construct two separate clocks, set times, test if they are equal', () => {
       it('clocks with same time', () => {
         expect(new Clock(15, 37).equals(new Clock(15, 37))).toBeTruthy()
       })
