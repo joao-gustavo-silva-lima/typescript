@@ -5,32 +5,30 @@ export class Clock {
     this.timeInMinutes = minute + hour * 60;
   }
 
-  public toString(): string {
+  public toString() : string {
     const fixedHour   = (24 + (Math.floor(this.timeInMinutes / 60) % 24)) % 24;
-    const fixedMinute = (60 +                  (this.timeInMinutes % 60)) % 60;
+    const fixedMinute = (60 + (           this.timeInMinutes % 60      )) % 60;
 
-    const hourString   = fixedHour
+    return `${
+      fixedHour
       .toString()
-      .padStart(2, '0');
-    const minuteString = fixedMinute
+      .padStart(2, '0')
+    }:${
+      fixedMinute
       .toString()
-      .padStart(2, '0');
-
-    return `${hourString}:${minuteString}`;
+      .padStart(2, '0')
+    }`;
   }
 
-  public plus(minutes: number): Clock {
-    this.timeInMinutes += minutes;
-
-    return this;
+  public plus(minutes : number) : Clock {
+    return new Clock(0, this.timeInMinutes + minutes);
   }
 
-  public minus(minutes: number): Clock {
-    this.timeInMinutes -= minutes;
-
-    return this;
+  public minus(minutes : number) : Clock {
+    return new Clock(0, this.timeInMinutes - minutes);
   }
 
-  public readonly equals = (other: Clock): boolean =>
-    this.toString() == other.toString();
+  public equals(other : Clock) : boolean {
+    return this.toString() == other.toString();
+  }
 }
