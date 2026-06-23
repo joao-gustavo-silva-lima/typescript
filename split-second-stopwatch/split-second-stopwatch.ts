@@ -12,9 +12,10 @@ interface HMS {
 }
 
 export class SplitSecondStopwatch {
-  private _state          : State       = "ready";
-  private _previousLaps   : HMS[]       = [];
-  private _currentLap!    : HMS ;
+  private _previousLaps : HMS[] = [];
+  private _cachedLapsTS : Timestamp[] = [];
+  private _state        : State = "ready";
+  private _currentLap!  : HMS ;
 
   constructor() { this._currentLap = { hours : 0, minutes : 0, seconds : 0 }; }
 
@@ -37,7 +38,7 @@ export class SplitSecondStopwatch {
   }
 
   public get previousLaps(): Timestamp[] {
-    return this._previousLaps.map(SplitSecondStopwatch.constructTimestamp);
+    return this._cachedLapsTS;
   }
 
   public start(): void {
@@ -62,6 +63,9 @@ export class SplitSecondStopwatch {
     }
 
     this._previousLaps.push(this._currentLap);
+    this._cachedLapsTS.push(
+      SplitSecondStopwatch.constructTimestamp(this._currentLap)
+    )
 
     this._currentLap = { hours : 0, minutes : 0, seconds : 0 };
   }
@@ -71,9 +75,10 @@ export class SplitSecondStopwatch {
       throw 'cannot reset a stopwatch that is not stopped';
     }
 
-    this._previousLaps   = [];
-    this._state          = "ready";
-    this._currentLap     = { hours : 0, minutes : 0, seconds : 0 };
+    this._previousLaps = [];
+    this._cachedLapsTS = [];
+    this._state        = "ready";
+    this._currentLap   = { hours : 0, minutes : 0, seconds : 0 };
   }
 
   public advanceTime(additionalTime : Timestamp): void {
@@ -86,9 +91,9 @@ export class SplitSecondStopwatch {
 
   private static sumTimes(time1 : HMS, time2 : HMS) : HMS {
     const timeInSeconds =
-      (time1.hours + time2.hours)     * 3600 +
-      (time1.minutes + time2.minutes) *   60 +
-      (time1.seconds + time2.seconds)        ;
+      (time1.hours + time2.hours) * 3600 +
+      (time1.minutes + time2.minutes) * 60 +
+      (time1.seconds + time2.seconds);
 
     return { 
       hours   : Math.floor(timeInSeconds / 3600), 
@@ -98,11 +103,11 @@ export class SplitSecondStopwatch {
   }
 
   private static constructTimestamp(time : HMS) : Timestamp {
-    const hours   = time.hours.toString().padStart(2, '0') as Hour;
-    const minutes = time.minutes.toString().padStart(2, '0') as MS;
-    const seconds = time.seconds.toString().padStart(2, '0') as MS;
+    const hours   = time.hours.toString().padStart(2, '0');
+    const minutes = time.minutes.toString().padStart(2, '0');
+    const seconds = time.seconds.toString().padStart(2, '0');
 
-    return `${hours}:${minutes}:${seconds}`;
+    return `${hours}:${minutes}:${seconds}` as Timestamp;
   }
 
   private static destructTimestamp(timestamp : Timestamp) : HMS {
