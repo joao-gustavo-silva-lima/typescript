@@ -15,7 +15,7 @@ export class LinkedList<TElement> {
   public push(value : TElement) : void {
     const newNode = new Node<TElement>(value);
     
-    if(this.TAIL === this.HEAD && this.HEAD === undefined) {
+    if(this.HEAD === undefined) {
       this.HEAD = newNode;
       this.TAIL = newNode;
       return;
@@ -29,7 +29,7 @@ export class LinkedList<TElement> {
   public unshift(value : TElement) : void {
     const newNode = new Node<TElement>(value);
 
-    if(this.TAIL === this.HEAD && this.HEAD === undefined) {
+    if(this.TAIL === undefined) {
       this.HEAD = newNode;
       this.TAIL = newNode;
       return;
@@ -83,6 +83,8 @@ export class LinkedList<TElement> {
         continue;
       };
 
+      const nextToProcess: Node<TElement> | undefined = chaserHEAD.previous;
+
       if (chaserHEAD === this.HEAD) {
         this.HEAD = chaserHEAD.previous;
       }
@@ -97,7 +99,7 @@ export class LinkedList<TElement> {
         chaserHEAD.next.previous = chaserHEAD.previous;
       }
 
-      break;
+      chaserHEAD = nextToProcess;
     }
   }
 
