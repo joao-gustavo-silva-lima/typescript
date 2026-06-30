@@ -1,37 +1,85 @@
+const getGreatestCommonDivisor = (A: number, B: number): number =>
+  B === 0 ? A : getGreatestCommonDivisor(B, A % B);
+
 export class Rational {
-  constructor() {
-    throw new Error('Remove this line and implement the function')
+  private _numerator: number;
+  private _denominator: number;
+
+  public get numerator() { 
+    return this._numerator;
+  }
+  public get denominator() {
+    return this._denominator;
   }
 
-  add() {
-    throw new Error('Remove this line and implement the function')
+  constructor(numerator: number, denominator: number) {
+    const sign = Math.sign(numerator) * Math.sign(denominator);
+
+    this._numerator = Math.abs(numerator) * sign;
+    this._denominator = Math.abs(denominator);
   }
 
-  sub() {
-    throw new Error('Remove this line and implement the function')
+  add(addend: Rational): Rational {
+    const newNumerator = (this._numerator * addend._denominator) + 
+    (addend._numerator * this._denominator);
+    const newDenominator = this._denominator * addend._denominator;
+    
+    return new Rational(
+      newNumerator,
+      newNumerator === 0 ? 1 : newDenominator,
+    )
   }
 
-  mul() {
-    throw new Error('Remove this line and implement the function')
+  sub(subtrahend: Rational): Rational {
+    return this.add(new Rational(
+      -subtrahend._numerator,
+      subtrahend._denominator
+    ));
   }
 
-  div() {
-    throw new Error('Remove this line and implement the function')
+  mul(factor: Rational): Rational {
+    return new Rational(
+      this._numerator * factor._numerator,
+      this._denominator * factor._denominator
+    ).reduce();
   }
 
-  abs() {
-    throw new Error('Remove this line and implement the function')
+  div(divisor: Rational): Rational {
+    return new Rational(
+      this._numerator * divisor._denominator,
+      this._denominator * divisor._numerator
+    )
   }
 
-  exprational() {
-    throw new Error('Remove this line and implement the function')
+  abs(): Rational {
+    return new Rational(
+      Math.abs(this._numerator),
+      Math.abs(this._denominator)
+    ).reduce();
   }
 
-  expreal() {
-    throw new Error('Remove this line and implement the function')
+  exprational(exponent: number): Rational {
+    const absExp = Math.abs(exponent);
+
+    return new Rational(
+      (exponent >= 0 ? this._numerator : this._denominator) ** absExp,
+      (exponent >= 0 ? this._denominator : this._numerator) ** absExp
+    );
   }
 
-  reduce() {
-    throw new Error('Remove this line and implement the function')
+  expreal(base: number): number {
+    return base ** (this._numerator / this._denominator);
+  }
+
+  reduce(): Rational {
+    const GCD = getGreatestCommonDivisor(
+      Math.abs(this._numerator),
+      Math.abs(this._denominator)
+    )
+
+    return new Rational(
+      this._numerator / GCD,
+      this._denominator / GCD
+    );
   }
 }
