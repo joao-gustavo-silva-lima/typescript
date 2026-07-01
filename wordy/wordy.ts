@@ -1,18 +1,25 @@
 const OPERATOR_EXPRESSIONS = new Map([
   ["plus"         , '+'],
   ["minus"        , '-'],
-  ["divided by"   , '/'],
-  ["multiplied by", '*'],
+  ["divided"   , '/'],
+  ["multiplied", '*'],
 ]);
 
-const MATH_EXPRESSIONS_REGEX = /(?:-?\d+|plus|minus|divided by|multiplied by)/g;
+const VALID_MATH_QUESTION_REGEX = /^What is(?:[+-]?\d+|plus|minus|multiplied by|divided by|\s+)*[?]$/;
 
 export const answer = (question: string): number => {
-  const operationalTerms = question.match(MATH_EXPRESSIONS_REGEX);
-  const isMathQuestion = /^What is/.test(question);
+  if(!VALID_MATH_QUESTION_REGEX.test(question)) {
+    throw new Error('Unknown operation');
+  }
 
-  if(!operationalTerms) {
-    throw new Error(isMathQuestion ? "Syntax error" : "Unknown operation");
+  const cleanQuestion    =      question
+    .replace(/What is|\?|by/g, '')
+    .trim();
+  const operationalTerms = cleanQuestion
+    .split(/\s+/);
+
+  if(!operationalTerms.length) {
+    throw new Error("Syntax error");
   }
 
   let operationString = "";
