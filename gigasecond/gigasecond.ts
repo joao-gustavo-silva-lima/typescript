@@ -1,5 +1,12 @@
 export class Gigasecond {
-  public date(/* Parameters go here */) {
-    throw new Error('Remove this line and implement the function')
+  private gigasecondDate: Date;
+  
+  public constructor(date: Date) {
+    const gigasecondTimeinMs =       date.getTime() + 1E+12;
+    this.gigasecondDate      = new Date(gigasecondTimeinMs);
+  }
+
+  public date() {
+    return this.gigasecondDate;
   }
 }
