@@ -1,17 +1,19 @@
-const applyHeronFormula = (nearNumber: number, radicand: number): number =>
-  (nearNumber + radicand/nearNumber) / 2
-
 export function squareRoot(radicand: number): number {
-  let nearNumber = 0;
-  while(++nearNumber ** 2 < radicand) {}
+  if(radicand === 0) return 0;
 
-  let result: number = nearNumber;
+  let approximateRoot = 0;
+
+  while(approximateRoot ** 2 < radicand) { 
+    approximateRoot++; 
+  }
   
   while(true) {
-    const heronResult = applyHeronFormula(nearNumber, radicand);
-    if(nearNumber === heronResult) break;
-    result = heronResult;
-  }
+    const heronResult = (approximateRoot + radicand / approximateRoot) / 2;
 
-  return result;
+    if(Math.abs(approximateRoot - heronResult) < 1e-15) {
+      return approximateRoot;
+    }
+
+    approximateRoot = heronResult;
+  }
 }
