@@ -17,10 +17,9 @@ export class List<ItemT> {
     return this._length; 
   }
 
-  public push(item: ItemT) : List<ItemT> {
+  public push(item: ItemT) : number {
     this[this._length] = item;
-    this._length++;
-    return this;
+    return ++this._length;
   }
 
   public forEach(callbackFunction: (item: ItemT, index: number) => void): void {
@@ -51,12 +50,13 @@ export class List<ItemT> {
     if(sourceList._length < 1) return this;
 
     if(!(sourceList[0] instanceof List)) {
-      return this.append(sourceList as List<ItemT>);
+      this.append(sourceList as List<ItemT>);
+      return this;
     }
     
     sourceList.forEach(list => {
       this.append(list as List<ItemT>);
-    })
+    });
 
     return this;
   }
@@ -73,60 +73,53 @@ export class List<ItemT> {
     return filteredList;
   }
 
-  public reduce(
-    accumulationFunction: (accumulator: ItemT, item: ItemT) => ItemT, 
-    initialAccumulator: ItemT,
-    initialIndex: number,
-    lastIndex: number
-  ): ItemT {
+  public reduce<accumulatorT>(
+    accumulationFunction: (accumulator: accumulatorT, item: ItemT) => accumulatorT, 
+    initialAccumulator: accumulatorT,
+    reversed: boolean
+  ): accumulatorT {
     let thisAccumulator = initialAccumulator;
-    let reduceFromRight = lastIndex < initialIndex;
+    let i = reversed ? this._length - 1 : 0;
 
-    let i = initialIndex;
-    while (reduceFromRight ? i >= lastIndex : i <= lastIndex) {
+    while(reversed ? i >= 0 : i < this._length) {
       thisAccumulator = accumulationFunction(thisAccumulator, this[i]);
-      reduceFromRight ? i-- : i++;
+      reversed ? i-- : i++;
     }
 
     return thisAccumulator;
   }
 
-  public foldl(
-    accumulationFunction: (accumulator: ItemT, item: ItemT) => ItemT,
-    initialAccumulator: ItemT
-  ): ItemT {
+  public foldl<accumulatorT>(
+    accumulationFunction: (accumulator: accumulatorT, item: ItemT) => accumulatorT,
+    initialAccumulator: accumulatorT
+  ): accumulatorT {
     if(this._length < 1) return initialAccumulator;
 
     return this.reduce(
       accumulationFunction,
       initialAccumulator,
-      0,
-      this._length - 1
+      false
     );
   }
 
-  public foldr(
-    accumulationFunction: (accumulator: ItemT, item: ItemT) => ItemT,
-    initialAccumulator: ItemT
-  ): ItemT {
+  public foldr<accumulatorT>(
+    accumulationFunction: (accumulator: accumulatorT, item: ItemT) => accumulatorT,
+    initialAccumulator: accumulatorT
+  ): accumulatorT {
     if(this._length < 1) return initialAccumulator;
 
     return this.reduce(
       accumulationFunction,
       initialAccumulator,
-      this._length - 1,
-      0,
+      true
     );
   }
-
+  
   public reverse(): List<ItemT> {
-    const reversedList = new List<ItemT>();
-
-    for(let i = this._length - 1 ; i >= 0 ; i--) {
-      reversedList.push(this[i]);
-    }
-
-    return reversedList;
+    return this.foldr((accumulator, item) => {
+      accumulator.push(item);
+      return accumulator;
+    }, new List<ItemT>());
   }
 }
 
