@@ -1,27 +1,23 @@
 export class Squares {
-  public sumOfSquares: number;
-  public  squareOfSum: number;
-  public   difference: number;
+  private _sumOfSquares: number;
+  private _squareOfSum : number;
+  private _difference  : number;
+
+  public get sumOfSquares() { return this._sumOfSquares; }
+  public get squareOfSum()  { return this._squareOfSum ; }
+  public get difference()   { return this._difference  ; }
 
   constructor(count: number) {
-    this.sumOfSquares = Squares.calculateSumOfSquares(count);
-    this.squareOfSum  =  Squares.calculateSquareOfSum(count);
-    this.difference   = this.squareOfSum - this.sumOfSquares;
+    this._sumOfSquares = Squares.calculateSumOfSquares(count)  ;
+    this._squareOfSum  = Squares.calculateSquareOfSum(count)   ;
+    this._difference   = this._squareOfSum - this._sumOfSquares;
   }
 
   private static calculateSumOfSquares(count: number): number {
-    let result = 0;
-    for(let i = 1 ; i <= count ; i++) {
-      result += i ** 2;
-    }
-    return result; 
+    return (count * (count + 1) * (2 * count + 1)) / 6;
   }
 
   private static calculateSquareOfSum(count: number): number {
-    let result = 0;
-    for(let i = 1 ; i <= count ; i++) {
-      result += i;
-    }
-    return result ** 2;
+    return (count * (count + 1) / 2) ** 2;
   }
 }
