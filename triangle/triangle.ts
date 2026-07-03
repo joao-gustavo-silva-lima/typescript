@@ -1,54 +1,28 @@
 type TriangleSides = [number, number, number];
 
 export class Triangle {
-  private _isEquilateral = false;
-  private _isDegenerate  = false; 
-  private _isIsosceles   = false;
-  private _isScalene     = false;
-
-  public get isEquilateral() { return this._isEquilateral; }
-  public get isDegenerate()  { return this._isDegenerate ; }
-  public get isIsosceles()   { return this._isIsosceles  ; }
-  public get isScalene()     { return this._isScalene    ; }
+  public readonly isEquilateral: boolean = false;
+  public readonly isDegenerate : boolean = false; 
+  public readonly isIsosceles  : boolean = false;
+  public readonly isScalene    : boolean = false;
 
   public constructor(...sides: TriangleSides) {
-    if(!Triangle.validateMeasures(sides)) return;
+    if(!Triangle.isValid(sides)) return;
 
-    this._isEquilateral = Triangle.checkEquilateral(sides);
-    this._isDegenerate  = Triangle.checkDegenerate(sides) ;
-    this._isIsosceles   = Triangle.checkIsosceles(sides)  ;
-    this._isScalene     = Triangle.checkScalene(sides)    ;
+    const [a, b, c] = sides.sort((x, y) => x - y)
+
+    this.isDegenerate  = a + b === c       ;
+    this.isEquilateral = a === c           ; 
+    this.isIsosceles   = a === b || b === c;
+    this.isScalene     = a !== b && b !== c;
   }
 
-  public static checkEquilateral(sides: TriangleSides): boolean {
-    return sides[0] === sides[1] 
-    &&     sides[0] === sides[2]
-    &&     sides[1] === sides[2];
-  }
-
-  public static checkIsosceles(sides: TriangleSides): boolean {
-    return sides[0] === sides[1] 
-    ||     sides[0] === sides[2]
-    ||     sides[1] === sides[2]; 
-  }
-
-  public static checkScalene(sides: TriangleSides): boolean {
-    return sides[0] !== sides[1] 
-    &&     sides[0] !== sides[2]
-    &&     sides[1] !== sides[2];
-  }
-
-  public static checkDegenerate(sides: TriangleSides): boolean {
-    return sides[0] + sides[1] === sides[2]
-    &&     sides[0] + sides[2] === sides[1]
-    &&     sides[1] + sides[2] === sides[0];
-  }
-
-  public static validateMeasures(sides: TriangleSides): boolean {
-    if(sides.some((side) => side <= 0)) return false;
-    if(sides[0] + sides[1] < sides[2] ) return false;
-    if(sides[0] + sides[2] < sides[1] ) return false;
-    if(sides[1] + sides[2] < sides[0] ) return false;
-    return true;
+  public static isValid([a, b ,c]: TriangleSides): boolean {
+    return a > 0 
+    &&     b > 0 
+    &&     c > 0
+    &&     a + b >= c
+    &&     a + c >= b
+    &&     b + c >= a;
   }
 }
