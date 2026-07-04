@@ -1,3 +1,16 @@
-export function steps(count: unknown): unknown {
-  throw new Error('Remove this line and implement the function')
+export function steps(entryNumber: number): number {
+  if(!Number.isInteger(entryNumber) || entryNumber <= 0) throw "Only positive integers are allowed";
+
+  let reducedNumber = entryNumber;
+  let i = 0;
+
+  while(reducedNumber !== 1) {
+    reducedNumber = reducedNumber % 2 === 0 
+      ? reducedNumber / 2
+      : reducedNumber * 3 + 1
+    ;
+    i++;
+  }
+
+  return i;
 }
