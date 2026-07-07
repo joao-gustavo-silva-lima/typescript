@@ -1,138 +1,95 @@
-type Card = typeof NUMBER_CARDS[number] | typeof PENALTY_CARDS[number];
-type NumberCard  = typeof NUMBER_CARDS[number];
-type PenaltyCard = typeof PENALTY_CARDS[number];
-type Deck = Card[];
-
-const NUMBER_CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
-const NUMBER_CARDS_SET = new Set<Card>(NUMBER_CARDS);
-const PENALTY_CARDS = [ 'J', 'Q', 'K', 'A'] as const;
-const PENALTY_CARDS_SET = new Set<Card>(PENALTY_CARDS);
-const PENALTY_DUE_TABLE = new Map<PenaltyCard, number>([
-  ['J', 1],
-  ['Q', 2],
-  ['K', 3],
-  ['A', 4],
-]);
-
 interface GameResult { 
   status: "in progress" | "finished" | "loop", 
-  cards : number, 
+  cards: number, 
   tricks: number 
-};
-
-class Player {
-  private _deck: Deck;
-  private _decksHistory: Deck[] = [];
-  public  penaltyDue = 0;
-
-  get deck() {
-    return this._deck;
-  }
-
-  public constructor(deck: Deck) {
-    this._deck = deck;
-  }
 }
 
-class DeckManager {
-  public static createDeckHistoryStamp(): string {
-    throw "WIP";
-  }
-
-  public static  isNumberCard(card: Card): card is NumberCard {
-    return NUMBER_CARDS_SET.has(card);
-  }
-
-  public static isPenaltyCard(card: Card): card is PenaltyCard {
-    return PENALTY_CARDS_SET.has(card);
-  }
-}
-
-class CamiciaGameMock {
-  public result: GameResult = { 
+export function simulateGame(entryDeckA: string[], entryDeckB: string[]): GameResult {
+  const result: GameResult = { 
     status: "in progress", 
     cards : 0, 
-    tricks: 0
-  };
-  
-  private round = 0;
-  private playerA: Player;
-  private playerB: Player;
-  private centralDeck   : Deck = [];
-  private playerInTurn  : Player   ;
-  private opponentInTurn: Player   ;
-  
-  public constructor(deckA: Deck, deckB: Deck) {
-    this.playerA = new Player(deckA);
-    this.playerB = new Player(deckB);
-    this.playerInTurn   = this.playerA;
-    this.opponentInTurn = this.playerB;
-
-    while(this.result.status === "in progress") { 
-      this.initTurn(); 
-      this.toggleTurn();
-    }
+    tricks: 0 
   }
-  
-  private initTurn(): void {
-    const topCentralCard = this.centralDeck[0];
+  const deckA = [...entryDeckA];
+  const deckB = [...entryDeckB];
+  const totalQuantityOfCards = deckA.length + deckB.length;
+  let centralDeck = [] as string[];
+  let deckInTurn = deckA;
+  let opponentDeckInTurn = deckB;
 
-    if(!topCentralCard || DeckManager.isNumberCard(topCentralCard)) {
-      const thrownCard = this.playerInTurnThrowsCard();
-      if(!thrownCard) this.result.status = "finished";
-      return;
+  mainLoop:
+  while(result.status === "in progress") {
+    if(deckInTurn.length === 0) {
+      trick(opponentDeckInTurn);
+      toggleTurn();
+      continue mainLoop;
     }
 
-    this.playerInTurn.penaltyDue = PENALTY_DUE_TABLE
-      .get(topCentralCard as PenaltyCard)!;
+    const thrownCard = deckInTurn.shift()!;
+    centralDeck.unshift(thrownCard);
+    result.cards++;
 
-    let collectingPlayer: Player = this.playerInTurn;
-
-    while(this.playerInTurn.penaltyDue > 0) {
-      const thrownCard = this.playerInTurnThrowsCard();
-      
-      if(!thrownCard) {
-        collectingPlayer = this.opponentInTurn;
-        break;
-      }
-      if(DeckManager.isPenaltyCard(thrownCard)) {
-        this.playerInTurn.penaltyDue = 0;
-        return;
-      }
-      
-      this.playerInTurn.penaltyDue--;
+    if(!isPenaltyCard(thrownCard)) {
+      toggleTurn();
+      continue;
     }
 
-    this.executeTrick(collectingPlayer);
+    let penaltyDue = getPenaltyDue(thrownCard);
+
+    penaltyLoop:
+    while(penaltyDue > 0) {
+      if(opponentDeckInTurn.length === 0) {
+        break penaltyLoop;
+      }
+
+      const paymentCard = opponentDeckInTurn.shift()!;
+      centralDeck.unshift(paymentCard);
+      result.cards++;
+
+      if(isPenaltyCard(paymentCard)) {
+        penaltyDue = getPenaltyDue(paymentCard);
+        toggleTurn();
+        continue penaltyLoop;
+      }
+
+      penaltyDue--;
+    }
+
+    trick(deckInTurn);
   }
 
-  private toggleTurn(): void {
-    this.playerInTurn = this.playerInTurn === this.playerA
-      ? this.playerB
-      : this.playerA;
+  function toggleTurn(): void {
+    if(deckInTurn === deckA) {
+      deckInTurn = deckB;
+      opponentDeckInTurn = deckA;
+    }
+    else {
+      deckInTurn = deckA;
+      opponentDeckInTurn = deckB;
+    }
+  }
+  function isPenaltyCard(card: string): boolean {
+    return card === "J"
+    ||     card === "Q"
+    ||     card === "K"
+    ||     card === "A";
+  }
+  function getPenaltyDue(penaltyCard: string): number {
+    if(penaltyCard === "J") return 1;
+    if(penaltyCard === "Q") return 2;
+    if(penaltyCard === "K") return 3;
+    if(penaltyCard === "A") return 4;
+    return 0;
+  }
+  function trick(trickerDeck: string[]): void {
+    trickerDeck.push(...[...centralDeck]);
+    centralDeck = [];
+    result.tricks++;
+
+    if(trickerDeck.length !== totalQuantityOfCards) return;
     
-    this.opponentInTurn = this.opponentInTurn === this.playerA
-      ? this.playerB
-      : this.playerA;
+    result.status = "finished";
   }
 
-  private playerInTurnThrowsCard(): Card | undefined {
-    const topCard = this.playerInTurn.deck.shift();
-    if(topCard) {
-      this.centralDeck.unshift(topCard);
-      this.result.cards++;
-    }
-    return topCard;
-  }
-
-  private executeTrick(collectingPlayer: Player): void {
-    collectingPlayer.deck.push(...[...this.centralDeck]);
-    this.centralDeck = [];
-    this.result.tricks++;
-    this.round++;
-  }
-}
-
-export const simulateGame = (deckA: string[], deckB: string[]): GameResult => {
-  return new CamiciaGameMock(deckA as Deck, deckB as Deck).result;
+  return result;
 }
