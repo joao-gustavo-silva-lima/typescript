@@ -1,4 +1,15 @@
-const ALLERGEN_ITEMS_SCORE = new Map<string, number>([
+type AllergenItem = (typeof ALLERGEN_ITEMS)[number];
+const ALLERGEN_ITEMS = [
+  "cats",
+  "pollen",
+  "chocolate",
+  "tomatoes",
+  "strawberries",
+  "shellfish",
+  "peanuts",
+  "eggs",
+] as const;
+const ALLERGEN_ITEMS_SCORES = new Map<AllergenItem, number>([
   ["cats", 128],
   ["pollen", 64],
   ["chocolate", 32],
@@ -10,29 +21,27 @@ const ALLERGEN_ITEMS_SCORE = new Map<string, number>([
 ]);
 
 export class Allergies {
-  private allergenScore: number;
-  private readonly _list = new Set<string>();
+  private readonly allergies: AllergenItem[] = [];
 
   constructor(allergenIndex: number) {
-    this.allergenScore =
-      allergenIndex > 256
-        ? ((Math.abs(allergenIndex) - 1) % 256) + 1
-        : allergenIndex % 257;
+    let allergenScore = allergenIndex % 256;
 
-    for (const [allergenItem, itemScore] of ALLERGEN_ITEMS_SCORE.entries()) {
-      if (this.allergenScore < 1) break;
-      if (this.allergenScore < itemScore) continue;
+    for (const [allergenItem, itemScore] of ALLERGEN_ITEMS_SCORES.entries()) {
+      if (allergenScore < 1) break;
+      if (allergenScore < itemScore) continue;
 
-      this._list.add(allergenItem);
-      this.allergenScore -= itemScore;
+      this.allergies.push(allergenItem);
+      allergenScore -= itemScore;
     }
+
+    this.allergies.reverse();
   }
 
   public list(): string[] {
-    return [...this._list].reverse();
+    return this.allergies;
   }
 
-  public allergicTo(allergenItem: string): boolean {
-    return this._list.has(allergenItem);
+  public allergicTo(allergenItem: AllergenItem): boolean {
+    return this.allergies.includes(allergenItem);
   }
 }
