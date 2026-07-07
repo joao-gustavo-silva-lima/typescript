@@ -4,13 +4,20 @@ export function classify(inputNumber: number): Classification {
   if (inputNumber <= 0 || !Number.isInteger(inputNumber)) {
     throw "Classification is only possible for natural numbers.";
   }
+  if (inputNumber === 1) return "deficient";
 
-  let aliquotSum = 0;
+  let aliquotSum = 1;
+  const GreatestDivisor = Math.sqrt(inputNumber);
 
-  for (let n = 1; n < inputNumber; n++) {
-    if (inputNumber % n !== 0) continue;
+  for (let n = 2; n < GreatestDivisor; n++) {
+    if (inputNumber % n === 0) {
+      aliquotSum += n;
+      aliquotSum += inputNumber / n;
+    }
+  }
 
-    aliquotSum += n;
+  if (inputNumber % GreatestDivisor === 0 && GreatestDivisor > 1) {
+    aliquotSum += GreatestDivisor;
   }
 
   if (aliquotSum > inputNumber) return "abundant";
