@@ -4,9 +4,25 @@ type Options = {
   sum: number;
 };
 
+class Triplet {
+  private readonly A: number;
+  private readonly B: number;
+  private readonly C: number;
+
+  constructor(A: number, B: number, C: number) {
+    this.A = A;
+    this.B = B;
+    this.C = C;
+  }
+
+  toArray(): [number, number, number] {
+    return [this.A, this.B, this.C];
+  }
+}
+
 export function triplets({
   minFactor = 1,
-  maxFactor,
+  maxFactor = Number.POSITIVE_INFINITY,
   sum,
 }: Options): Triplet[] {
   const N = sum;
@@ -26,36 +42,19 @@ export function triplets({
 
     const c = N - a - b;
 
-    if (
-      a >= b ||
-      b >= c ||
-      (maxFactor !== undefined &&
-        (a > maxFactor || b > maxFactor || c > maxFactor)) ||
-      a < minFactor ||
-      b < minFactor ||
-      c < minFactor
-    ) {
-      continue;
-    }
+    const isOrderRespeftful = a < b && b < c;
+    const isBoundaryRespectful =
+      a <= maxFactor &&
+      b <= maxFactor &&
+      c <= maxFactor &&
+      a >= minFactor &&
+      b >= minFactor &&
+      c >= minFactor;
 
-    output.push(new Triplet(a, b, c));
+    if (isOrderRespeftful && isBoundaryRespectful) {
+      output.push(new Triplet(a, b, c));
+    }
   }
 
   return output;
-}
-
-class Triplet {
-  private readonly A: number;
-  private readonly B: number;
-  private readonly C: number;
-
-  constructor(A: number, B: number, C: number) {
-    this.A = A;
-    this.B = B;
-    this.C = C;
-  }
-
-  toArray(): [number, number, number] {
-    return [this.A, this.B, this.C];
-  }
 }
