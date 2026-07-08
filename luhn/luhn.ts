@@ -1,27 +1,24 @@
-export function valid(digitString: string): boolean {
-  const cleanString = digitString.replace(/\s+/g, "");
+export function valid(inputString: string): boolean {
+  const digitString = inputString.replace(/\s+/g, "");
 
-  if (!/^[\d]{2,}$/.test(cleanString)) {
+  if (!/^[\d]{2,}$/.test(digitString)) {
     return false;
   }
 
   let sumForValidation = 0;
-  let index = 1;
+  let shouldDoubleDigit = false;
 
-  while (cleanString.length - index >= 0) {
-    let digit = Number(cleanString[cleanString.length - index]);
+  for (let i = digitString.length - 1; i >= 0; i--) {
+    let digit = Number(digitString[i]);
 
-    if (index % 2 === 0) {
-      digit = digit * 2 - (digit * 2 > 9 ? 9 : 0);
+    if (shouldDoubleDigit) {
+      digit *= 2;
+      digit -= digit > 9 ? 9 : 0;
     }
 
     sumForValidation += digit;
-    index++;
+    shouldDoubleDigit = !shouldDoubleDigit;
   }
 
-  if (sumForValidation % 10 !== 0) {
-    return false;
-  }
-
-  return true;
+  return sumForValidation % 10 === 0;
 }
