@@ -11,28 +11,28 @@ export const toRoman = (inputNumber: number): string => {
   const unit = inputNumber % 10;
 
   output += "M".repeat(thousands);
-  output += convertNumeralComponentToRoman(hundreds, "C", "D", "CM");
-  output += convertNumeralComponentToRoman(tens, "X", "L", "XC");
-  output += convertNumeralComponentToRoman(unit, "I", "V", "IX");
+  output += placeValueToRoman(hundreds, "C", "D", "CM");
+  output += placeValueToRoman(tens, "X", "L", "XC");
+  output += placeValueToRoman(unit, "I", "V", "IX");
 
   return output;
 };
 
-function convertNumeralComponentToRoman(
-  component: number,
-  romamIncrementComponent: string,
-  romanMiddleContainer: string,
-  romanEdgeCaseComponent: string
+function placeValueToRoman(
+  digit: number,
+  oneSymbol: string,
+  fiveSymbol: string,
+  nineSymbol: string
 ) {
-  if (component <= 3) {
-    return romamIncrementComponent.repeat(component);
+  if (digit <= 3) {
+    return oneSymbol.repeat(digit);
   }
-  if (component <= 5) {
-    return romamIncrementComponent.repeat(5 - component) + romanMiddleContainer;
+  if (digit <= 5) {
+    return oneSymbol.repeat(5 - digit) + fiveSymbol;
   }
-  if (component <= 8) {
-    return romanMiddleContainer + romamIncrementComponent.repeat(component - 5);
+  if (digit <= 8) {
+    return fiveSymbol + oneSymbol.repeat(digit - 5);
   }
 
-  return romanEdgeCaseComponent;
+  return nineSymbol;
 }
