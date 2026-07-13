@@ -1,42 +1,41 @@
 export function clean(entryNumber: string): string {
-  let clearNumber = entryNumber.replace(/[-.\s\+\(\)]/g, "");
+  let cleanNumber = entryNumber.replace(/[-.\s\+\(\)]/g, "");
 
-  if (/[\p{L}]/giu.test(clearNumber)) {
+  if (/[\p{L}]/giu.test(cleanNumber)) {
     throw new Error("Letters not permitted");
   }
-  if (/[^\d]/g.test(clearNumber)) {
+  if (/[^\d]/g.test(cleanNumber)) {
     throw new Error("Punctuations not permitted");
   }
-  if (clearNumber.length < 10) {
+  if (cleanNumber.length < 10) {
     throw new Error("Must not be fewer than 10 digits");
   }
-  if (clearNumber.length > 11) {
+  if (cleanNumber.length > 11) {
     throw new Error("Must not be greater than 11 digits");
   }
-  if (clearNumber.length === 11) {
-    if (clearNumber[0] !== "1") {
+  if (cleanNumber.length === 11) {
+    if (cleanNumber[0] !== "1") {
       throw new Error("11 digits must start with 1");
     }
-    clearNumber = clearNumber.slice(1);
+
+    cleanNumber = cleanNumber.slice(1);
   }
 
-  const areaCode = clearNumber.slice(0, 3);
+  const areaCodeN = cleanNumber[0];
 
-  if (areaCode[0] === "0") {
-    throw new Error("Area code cannot start with zero");
-  }
-  if (areaCode[0] === "1") {
-    throw new Error("Area code cannot start with one");
-  }
-
-  const exchangeCode = clearNumber.slice(3, 6);
-
-  if (exchangeCode[0] === "0") {
-    throw new Error("Exchange code cannot start with zero");
-  }
-  if (exchangeCode[0] === "1") {
-    throw new Error("Exchange code cannot start with one");
+  if (/[0-1]/.test(areaCodeN)) {
+    throw new Error(
+      `Area code cannot start with ${areaCodeN === "0" ? "zero" : "one"}`
+    );
   }
 
-  return clearNumber;
+  const exchangeCodeN = cleanNumber[3];
+
+  if (/[0-1]/.test(exchangeCodeN)) {
+    throw new Error(
+      `Exchange code cannot start with ${exchangeCodeN === "0" ? "zero" : "one"}`
+    );
+  }
+
+  return cleanNumber;
 }
