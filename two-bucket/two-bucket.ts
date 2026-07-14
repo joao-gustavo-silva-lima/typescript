@@ -12,23 +12,27 @@ class Bucket {
 
 export class TwoBucket {
   private takenActions = 0;
+  private readonly goal: number;
   private readonly buckets: {
     one: Bucket;
     two: Bucket;
   };
+  private readonly startingBucket: BucketName;
 
   constructor(
     capacity1: number,
     capacity2: number,
-    desiredLiters: number,
-    firstToBeFilled: BucketName
+    goalLiters: number,
+    startingBucket: BucketName
   ) {
+    this.goal = goalLiters;
     this.buckets = {
       one: new Bucket(capacity1),
       two: new Bucket(capacity2),
     };
+    this.startingBucket = startingBucket;
 
-    this.fillBucket(this.buckets[firstToBeFilled]);
+    this.fillBucket(this.buckets[startingBucket]);
   }
 
   private fillBucket(bucket: Bucket): void {
